@@ -5,10 +5,6 @@
 
 GLWidget::GLWidget(int timerInterval, QWidget *parent) : QGLWidget(parent)
 {
-    rtri = blue = gquad = bquad = 0.0f;
-    green = 0.5f;
-    rdir = red = rquad = 1.0f;
-
     if(timerInterval == 0)
         timer = 0;
     else
@@ -18,8 +14,9 @@ GLWidget::GLWidget(int timerInterval, QWidget *parent) : QGLWidget(parent)
         timer->start(timerInterval);
     }
 
-	g_zIncrement = 0.5f;
-	g_fCoordZ = 0.5f;
+	g_fCoordX = g_fCoordY = g_fCoordZ = 0.0f;
+
+	updateGL();
 }
 
 QSize GLWidget::sizeHint() const
@@ -48,6 +45,9 @@ void GLWidget::check_gl_error (std::string from) {
 }
 
 void GLWidget::setShaders(void) {
+
+	this->dataTexture =56;
+	this->transferTexture=57;
 
 	glGenFramebuffersEXT(1, &fbo);
 	check_gl_error("generate FBO");
@@ -153,6 +153,9 @@ void GLWidget::setShaders(void) {
 
 	vertexSource = "void main() {gl_TexCoord[0] = gl_MultiTexCoord0; gl_TexCoord[1] = gl_MultiTexCoord1;gl_Position = ftransform();}";
 	fragmentSource = "uniform sampler3D slice_sampler;uniform sampler2D transfer_sampler;void main(){vec4 intensity = texture3D(slice_sampler,vec3(gl_TexCoord[0]) );if (intensity.x < 0.1) {discard;} else { gl_FragColor = texture2D(transfer_sampler,vec2(intensity.x, intensity.y));}}";
+	
+	//vertexSource = readShader("GLSL/slice.vert
+	//fragmentSource = readShader("GLSL/slice.frag");
 
 	glShaderSource(fragmentShader, 1, const_cast<const GLchar**>(&fragmentSource), 0);
 	glShaderSourceARB(vertexShader, 1, const_cast<const GLchar**>(&vertexSource), 0);
@@ -212,21 +215,26 @@ void GLWidget::initializeGL()
 	if (err != GLEW_OK) {
 		// glewInit failed, something is seriously wrong
 		std::cerr << "Error initializing GLEW: " << glewGetErrorString(err) << std::endl;
+		qDebug() << "Error initializing GLEW";
 		exit(1);
 	}
 	std::cout << "- GLEW initialized." << std::endl << std::endl;
 
-	if (glewIsSupported("GL_VERSION_2_0"))
+	if (glewIsSupported("GL_VERSION_2_0")) {
 		printf("Ready for OpenGL 2.0\n");
-	else {
+		qDebug() << "Ready for OpenGL 2.0";
+	}else {
 		printf("OpenGL 2.0 not supported\n");
+		qDebug() << "OpenGL 2.0 not supported";
 		exit(1);
 	}
 
-	if (GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader)
+	if (GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader) {
 		printf("Ready for GLSL\n");
-	else {
+		qDebug() << "Ready for GLSL";
+	} else {
 		printf("Not totally ready :( \n");
+		qDebug() << "Not totally ready";
 		exit(1);
 	}
 
@@ -240,6 +248,7 @@ void GLWidget::initializeGL()
 
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	setShaders();
+	//loadDataSet("dat/lobster.dat");
 }
 
 void GLWidget::resizeGL(int width, int height)
@@ -260,7 +269,8 @@ void GLWidget::resizeGL(int width, int height)
 void GLWidget::paintGL()
 {
 	static Timer timTimer;
-	glClearColor(1.0, 1.0, 1.0, 0.0);
+	//glClearColor(1.0, 1.0, 1.0, 0.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	glPushMatrix();
 
@@ -283,86 +293,61 @@ void GLWidget::paintGL()
 			glUniform1iARB(glGetUniformLocation(transferProgram, "slice_sampler"), 0);
 			glUniform1iARB(glGetUniformLocation(transferProgram, "transfer_sampler"), 1);
 
-			//glEnable(GL_COLOR);
-			//glColor4f(1.0, 0.0, 0.0, 1.0);
 			glTranslatef(-0.5, 0, 0);
 			glBegin(GL_QUADS);
-			glTexCoord3f(0.0f, 0.0f, g_fCoordZ);
-			glVertex3f(-0.5,-0.5,-1);
-			glTexCoord3f(1.0f, 0.0f, g_fCoordZ);
-			glVertex3f(0.5,-0.5,-1);
-			glTexCoord3f(1.0f, 1.0f, g_fCoordZ);
-			glVertex3f(0.5,0.5,-1);
-			glTexCoord3f(0.0f, 1.0f, g_fCoordZ);
-			glVertex3f(-0.5,0.5,-1);
+				glTexCoord3f(0.0f, 0.0f, g_fCoordZ);
+				glVertex3f(-0.5,-0.5,-1);
+				glTexCoord3f(1.0f, 0.0f, g_fCoordZ);
+				glVertex3f(0.5,-0.5,-1);
+				glTexCoord3f(1.0f, 1.0f, g_fCoordZ);
+				glVertex3f(0.5,0.5,-1);
+				glTexCoord3f(0.0f, 1.0f, g_fCoordZ);
+				glVertex3f(-0.5,0.5,-1);
 			glEnd();
 
 			glTranslatef(1.0, 0, 0);
 			glBegin(GL_QUADS);
-			glTexCoord3f(0.0f, g_fCoordZ, 0.0f);
-			glVertex3f(-0.5,-0.5,-1);
-			glTexCoord3f(1.0f, g_fCoordZ, 0.0f);
-			glVertex3f(0.5,-0.5,-1);
-			glTexCoord3f(1.0f, g_fCoordZ, 1.0f);
-			glVertex3f(0.5,0.5,-1);
-			glTexCoord3f(0.0f, g_fCoordZ, 1.0f);
-			glVertex3f(-0.5,0.5,-1);
+				glTexCoord3f(0.0f, g_fCoordY, 0.0f);
+				glVertex3f(-0.5,-0.5,-1);
+				glTexCoord3f(1.0f, g_fCoordY, 0.0f);
+				glVertex3f(0.5,-0.5,-1);
+				glTexCoord3f(1.0f, g_fCoordY, 1.0f);
+				glVertex3f(0.5,0.5,-1);
+				glTexCoord3f(0.0f, g_fCoordY, 1.0f);
+				glVertex3f(-0.5,0.5,-1);
 			glEnd();
 
 			glTranslatef(-1.0, -1.0, 0);
 			glBegin(GL_QUADS);
-			glTexCoord3f(g_fCoordZ, 0.0f, 0.0f);
-			glVertex3f(-0.5,-0.5,-1);
-			glTexCoord3f(g_fCoordZ, 1.0f, 0.0f);
-			glVertex3f(0.5,-0.5,-1);
-			glTexCoord3f(g_fCoordZ, 1.0f, 1.0f);
-			glVertex3f(0.5,0.5,-1);
-			glTexCoord3f(g_fCoordZ, 0.0f, 1.0f);
-			glVertex3f(-0.5,0.5,-1);
+				glTexCoord3f(g_fCoordX, 0.0f, 0.0f);
+				glVertex3f(-0.5,-0.5,-1);
+				glTexCoord3f(g_fCoordX, 1.0f, 0.0f);
+				glVertex3f(0.5,-0.5,-1);
+				glTexCoord3f(g_fCoordX, 1.0f, 1.0f);
+				glVertex3f(0.5,0.5,-1);
+				glTexCoord3f(g_fCoordX, 0.0f, 1.0f);
+				glVertex3f(-0.5,0.5,-1);
 			glEnd();
-
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, transferTexture);
-			glEnable(GL_TEXTURE_2D);
-			glUseProgram(0);
-
-			glDisable(GL_CULL_FACE);
-			glDisable(GL_DEPTH_TEST);
-
-			//glEnable(GL_COLOR);
-			glColor4f(1.0, 0.0, 0.0, 0.5);
-			glTranslatef(-0.5, 0, 0);
-			glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f);
-			glVertex3f(-0.5,-0.5,-1);
-			glTexCoord2f(1.0f, 0.0f);
-			glVertex3f(0.5,-0.5,-1);
-			glTexCoord2f(1.0f, 1.0f);
-			glVertex3f(0.5,0.5,-1);
-			glTexCoord2f(0.0f, 1.0f);
-			glVertex3f(-0.5,0.5,-1);
-			glEnd();
-
 		}
 		else // 3d texture not supported
 		{
 			glEnable(GL_TEXTURE_2D);
 			//draw quad with 2d texture
 			glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f);
-			glVertex3f(-0.5,-0.5,-1);
-			glTexCoord2f(1.0f, 0.0f);
-			glVertex3f(0.5,-0.5,-1);
-			glTexCoord2f(1.0f, 1.0f);
-			glVertex3f(0.5,0.5,-1);
-			glTexCoord2f(0.0f, 1.0f);
-			glVertex3f(-0.5,0.5,-1);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex3f(-0.5,-0.5,-1);
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex3f(0.5,-0.5,-1);
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex3f(0.5,0.5,-1);
+				glTexCoord2f(0.0f, 1.0f);
+				glVertex3f(-0.5,0.5,-1);
 			glEnd();
 		}
 	}
 
 	glPopMatrix();
+	swapBuffers();
 	//glutSwapBuffers();
 
 	//estimate fps
@@ -372,67 +357,23 @@ void GLWidget::paintGL()
 	printf("- %06.2f frames/second \r",dFramesPerSecond);
 }
 
-void GLWidget::setColor(int color)
+void GLWidget::setX(int x)
 {
-    switch(color)
-    {
-    case 0:
-        rquad = 1.0f;
-        gquad = bquad = 0.0f;
-        break;
-
-    case 1:
-        gquad = 1.0f;
-        rquad = bquad = 0.0f;
-        break;
-
-    case 2:
-        bquad = 1.0f;
-        rquad = gquad = 0.0f;
-    }
+    g_fCoordX = (float)x / (255.0f * 16.0f);
 }
 
-void GLWidget::setDirection(int direction)
+void GLWidget::setY(int y)
 {
-    if(direction == 0)
-        rdir = 1.0f;
-    else
-        rdir = -1.0f;
+    g_fCoordY = (float)y / (255.0f * 16.0f);
 }
 
-void GLWidget::setRed(int intensity)
+void GLWidget::setZ(int z)
 {
-    red = (float)intensity / (255.0f * 16.0f);
-}
-
-void GLWidget::setGreen(int intensity)
-{
-    green = (float)intensity / (255.0f * 16.0f);
-}
-
-void GLWidget::setBlue(int intensity)
-{
-    blue = (float)intensity / (255.0f * 16.0f);
+    g_fCoordZ = (float)z / (255.0f * 16.0f);
 }
 
 void GLWidget::timeOut()
 {
-	if (g_Volume.GetDepth()>1)
-	{
-		//update the slice z-coordinate
-		g_fCoordZ += g_zIncrement;
-		if (g_fCoordZ > 1.f)
-		{
-			g_zIncrement*=-1.f;
-			g_fCoordZ = 1.f;
-		}
-		else if (g_fCoordZ<0.f)
-		{
-			g_zIncrement *=-1.f;
-			g_fCoordZ = 0.f;
-		}
-	}
-
     updateGL();
 }
 
@@ -461,15 +402,18 @@ void GLWidget::loadDataSet(std::string fileName) {
 	glError = glGetError();
 	if (glError != GL_NO_ERROR) {
 		std::cerr<<"Error generating texture: "<<gluErrorString(glError)<<std::endl;
+		check_gl_error("Error generating texture");
 	} else if (dataTexture) {
 		if(GLEW_EXT_texture3D) {
-			g_zIncrement = 1.f / float(g_Volume.GetDepth()-1);
 			//bind texture
 			glBindTexture(GL_TEXTURE_3D, dataTexture);
+
 				
 			glError = glGetError();
 			if (glError != GL_NO_ERROR) {
 				std::cerr<<"Could not bind texture: "<<gluErrorString(glError)<<std::endl;
+				qDebug() << "Could not bind texture: ";
+				qDebug() << gluErrorString(glError);
 			} else {
 				int iTextureWidth=g_Volume.GetWidth();
 				int iTextureHeight=g_Volume.GetHeight();
@@ -480,20 +424,27 @@ void GLWidget::loadDataSet(std::string fileName) {
 					iTextureHeight = GetNextPowerOfTwo(g_Volume.GetHeight());
 					iTextureDepth = GetNextPowerOfTwo(g_Volume.GetDepth());				 
 				}
+				check_gl_error("GLEW_ARB_texture_non_power_of_two");
 
 				//upload texture
 				glTexImage3D(GL_TEXTURE_3D_EXT, 0, GL_LUMINANCE, iTextureWidth, iTextureHeight, iTextureDepth, 0, GL_LUMINANCE, GL_FLOAT, NULL);
+				check_gl_error("glTexImage3D");
 				glTexSubImage3D(GL_TEXTURE_3D_EXT, 0, 0, 0, 0, g_Volume.GetWidth(), g_Volume.GetHeight(), g_Volume.GetDepth(), GL_LUMINANCE, GL_FLOAT, (void *) g_Volume.Get());
-					
+				check_gl_error("glTexSubImage3D");
+
 				glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				check_gl_error("glTexParameteri FILTER");
 
 				glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				check_gl_error("glTexParameteri WRAP");
 
 				glError = glGetError();
 				if (glError != GL_NO_ERROR) {
 					std::cerr<<"Could not upload texture: "<<gluErrorString(glError)<<std::endl;
+					qDebug() << "Could not upload texture: ";
+					qDebug() << gluErrorString(glError);
 				}
 			}
 		}
@@ -533,3 +484,34 @@ void GLWidget::loadDataSet(std::string fileName) {
 	}
 	std::cout << std::endl;
 }
+
+char* GLWidget::readShader(char *fn) 
+	{
+		FILE *fp;
+		char *content = NULL;
+
+		int count=0;
+
+		if (fn != NULL) {
+
+			fp = fopen(fn,"rt");
+
+			if (fp != NULL) {
+										      
+        	      		fseek(fp, 0, SEEK_END);
+        			count = ftell(fp);
+        			rewind(fp);
+
+				if (count > 0) {
+					content = (char *)malloc(sizeof(char) * (count+1));
+					count = fread(content,sizeof(char),count,fp);
+					content[count] = '\0';
+				}
+				fclose(fp);
+										
+			}
+		}
+	
+		return content;
+	}
+

@@ -257,6 +257,7 @@ public:
 				//qDebug() << "Preparing Data";
 				//qDebug() << k*100;
 				std::cout << "\r- Preparing data (" << (k*100) / (m_iDepth-1) << "%) ...";
+
 			}
 			qDebug() << "Data prepared";
 			std::cout << std::endl << "- Data prepared." << std::endl;

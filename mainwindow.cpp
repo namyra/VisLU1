@@ -10,12 +10,9 @@ MainWindow::MainWindow()
     ySlider = createSlider();
     zSlider = createSlider();
 
-    xSlider->setValue(16 * 256);
-    ySlider->setValue(16 * 128);
-
-    connect(xSlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setRed(int)));
-    connect(ySlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setGreen(int)));
-    connect(zSlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setBlue(int)));
+    connect(xSlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setX(int)));
+    connect(ySlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setY(int)));
+    connect(zSlider, SIGNAL(valueChanged(int)), glWidget, SLOT(setZ(int)));
 
     renderButtons = new QButtonGroup;
     twoDButton = new QRadioButton("2D");
@@ -24,7 +21,7 @@ MainWindow::MainWindow()
     renderButtons->addButton(twoDButton, 0);
     renderButtons->addButton(threeDButton, 1);
 
-    connect(renderButtons, SIGNAL(buttonClicked(int)), glWidget, SLOT(setDirection(int)));
+//    connect(renderButtons, SIGNAL(buttonClicked(int)), glWidget, SLOT(setDirection(int)));
 
     renderGroup = new QGroupBox;
     QHBoxLayout *renderGroupLayout = new QHBoxLayout;
@@ -41,7 +38,7 @@ MainWindow::MainWindow()
     directionButtons->addButton(yButton, 1);
     directionButtons->addButton(zButton, 2);
 
-	connect(directionButtons, SIGNAL(buttonClicked(int)), glWidget, SLOT(setColor(int)));
+//	connect(directionButtons, SIGNAL(buttonClicked(int)), glWidget, SLOT(setColor(int)));
 
     sliderGroup = new QGroupBox;
     QGridLayout *sliderGroupLayout = new QGridLayout;

@@ -25,17 +25,16 @@ protected:
 
 protected slots:
     void timeOutSlot();
-    void setRed(int intensity);
-    void setGreen(int intensity);
-    void setBlue(int intensity);
-    void setDirection(int direction);
-    void setColor(int color);
+    void setX(int x);
+    void setY(int y);
+    void setZ(int z);
 
 private:
     QTimer *timer;
 	Volume g_Volume;
 	GLuint dataTexture;
-	float g_zIncrement;
+	float g_fCoordX;
+	float g_fCoordY;
 	float g_fCoordZ;
 	GLuint fragmentShader;
 	GLuint vertexShader;
@@ -44,9 +43,9 @@ private:
 	GLuint fbo;
 	GLuint depth_rb;
 
-    GLfloat rtri, rdir, red, green, blue, rquad, gquad, bquad;
 	const int GetNextPowerOfTwo(const int iNumber);
 	void setShaders(void);
+	char* readShader(char *fn);
 };
 
 #endif // GLWIDGET_H
