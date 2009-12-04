@@ -5,6 +5,7 @@
 #include <qgl.h>
 #include "Volume.h"
 #include "Timer.h"
+#include "TFTexture.h"
 
 class GLWidget : public QGLWidget
 {
@@ -42,6 +43,7 @@ private:
 	GLuint transferTexture;
 	GLuint fbo;
 	GLuint depth_rb;
+	TFTexture *transferFunction;
 
 	const int GetNextPowerOfTwo(const int iNumber);
 	void setShaders(void);

@@ -16,6 +16,8 @@ GLWidget::GLWidget(int timerInterval, QWidget *parent) : QGLWidget(parent)
 
 	g_fCoordX = g_fCoordY = g_fCoordZ = 0.0f;
 
+	transferFunction = new TFTexture();
+
 	updateGL();
 }
 
@@ -45,9 +47,6 @@ void GLWidget::check_gl_error (std::string from) {
 }
 
 void GLWidget::setShaders(void) {
-
-	this->dataTexture =56;
-	this->transferTexture=57;
 
 	glGenFramebuffersEXT(1, &fbo);
 	check_gl_error("generate FBO");
@@ -88,59 +87,14 @@ void GLWidget::setShaders(void) {
 		std::cout<<"Error: "<<glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)<<std::endl;
 	}
 
-	glViewport(0, 0, 256, 256);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0.0, 256.0, 0.0, 256.0, -1.0, 1.0); 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	check_gl_error("projection change");
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	float border = 64;
-	float border2 = 148;
-	glBegin(GL_QUADS);
-		glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
-		glVertex3f(0,0,-1);
-		glColor4f(1.0f, 0.0f, 0.0f, 0.8f);
-		glVertex3f(border,0,-1);
-		glColor4f(1.0f, 0.0f, 0.0f, 0.8f);
-		glVertex3f(border,256,-1);
-		glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
-		glVertex3f(0,256,-1);
-		
-		glColor4f(1.0f, 0.0f, 0.0f, 0.8f);
-		glVertex3f(border,0,-1);
-		glColor4f(0.2f, 0.6f, 1.0f, 1.0f);
-		glVertex3f(border2,0,-1);
-		glColor4f(0.2f, 0.6f, 1.0f, 1.0f);
-		glVertex3f(border2,256,-1);
-		glColor4f(1.0f, 0.0f, 0.0f, 0.8f);
-		glVertex3f(border,256,-1);
-
-		glColor4f(0.2f, 0.6f, 1.0f, 1.0f);
-		glVertex3f(border2,0,-1);
-		glColor4f(0.3f, 1.0f, 0.4f, 1.0f);
-		glVertex3f(256,0,-1);
-		glColor4f(0.3f, 1.0f, 0.4f, 1.0f);
-		glVertex3f(256,256,-1);
-		glColor4f(0.2f, 0.6f, 1.0f, 1.0f);
-		glVertex3f(border2,256,-1);
-	glEnd();
-	check_gl_error("transfer texture quad");
-
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-	check_gl_error("bind FBO");
+	transferFunction->generate();
 
 	glViewport(0, 0, width(), height());
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	check_gl_error("projection change back");
+//	check_gl_error("projection change back");
 
 	GLcharARB* fragmentSource;
 	GLcharARB* vertexSource;
