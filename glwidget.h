@@ -16,6 +16,7 @@ public:
     QSize sizeHint() const;
 	void loadDataSet(std::string fileName);
 	void check_gl_error (std::string from);
+	TFTexture* transferFunction();
 
 protected:
 	void initializeGL(void);
@@ -43,7 +44,7 @@ private:
 	GLuint transferTexture;
 	GLuint fbo;
 	GLuint depth_rb;
-	TFTexture *transferFunction;
+	TFTexture *tf;
 
 	const int GetNextPowerOfTwo(const int iNumber);
 	void setShaders(void);

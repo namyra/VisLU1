@@ -50,8 +50,14 @@ MainWindow::MainWindow()
     sliderGroupLayout->addWidget(zSlider, 2, 1);
     sliderGroup->setLayout(sliderGroupLayout);
 
+	transferScene = new QGraphicsScene;
+	transferView = new TFView(transferScene, glWidget->transferFunction());
+	transferView->show();
+	transferView->setMaximumHeight(150);
+
     sideBar = new QGroupBox;
     QVBoxLayout *sideBarLayout = new QVBoxLayout;
+	sideBarLayout->addWidget(transferView);
     sideBarLayout->addWidget(renderGroup);
     sideBarLayout->addWidget(sliderGroup);
     sideBarLayout->insertStretch(0);
@@ -62,6 +68,8 @@ MainWindow::MainWindow()
     mainLayout->addWidget(sideBar);
     mainLayout->addWidget(glWidget);
     setLayout(mainLayout);
+
+	transferView->setSceneRect(QRectF(0, 0, transferView->width(), transferView->height()));
 
     setMinimumSize(800, 600);
     setWindowTitle("GUI Test");

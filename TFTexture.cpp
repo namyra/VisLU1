@@ -1,8 +1,9 @@
 #include "TFTexture.h"
+#include <algorithm>
 
 TFTexture::TFTexture(void)
 {
-	nodes = new std::vector<TFNode>();
+	nodes = std::vector<TFNode>();
 
 	addNode(TFNode(0, 1.0, 1.0, 1.0, 0.0));
 	addNode(TFNode(64, 1.0, 0.0, 0.0, 0.8));
@@ -16,7 +17,17 @@ TFTexture::~TFTexture(void)
 
 void TFTexture::addNode(TFNode node)
 {
-	nodes->push_back(node);
+	nodes.push_back(node);
+}
+
+std::vector<TFNode>::iterator TFTexture::begin()
+{
+	return nodes.begin();
+}
+
+std::vector<TFNode>::iterator TFTexture::end()
+{
+	return nodes.end();
 }
 
 void TFTexture::generate()
@@ -33,12 +44,14 @@ void TFTexture::generate()
 
 	glBegin(GL_QUADS);
 
+	sort(nodes.begin(), nodes.end());
+
 	std::vector<TFNode>::iterator node;
 	TFNode prevNode;
 
-	for(node = nodes->begin(); node < nodes->end(); node++)
+	for(node = nodes.begin(); node < nodes.end(); node++)
 	{
-		if(node == nodes->begin())
+		if(node == nodes.begin())
 		{
 			prevNode = *node;
 			continue;

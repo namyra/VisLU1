@@ -16,7 +16,7 @@ GLWidget::GLWidget(int timerInterval, QWidget *parent) : QGLWidget(parent)
 
 	g_fCoordX = g_fCoordY = g_fCoordZ = 0.0f;
 
-	transferFunction = new TFTexture();
+	tf = new TFTexture();
 
 	updateGL();
 }
@@ -45,6 +45,12 @@ void GLWidget::check_gl_error (std::string from) {
 		qDebug() << "unknown error"; break;
 	}
 }
+
+TFTexture* GLWidget::transferFunction()
+{
+	return tf;
+}
+
 
 void GLWidget::setShaders(void) {
 
@@ -87,7 +93,7 @@ void GLWidget::setShaders(void) {
 		std::cout<<"Error: "<<glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)<<std::endl;
 	}
 
-	transferFunction->generate();
+	tf->generate();
 
 	glViewport(0, 0, width(), height());
 	glMatrixMode(GL_PROJECTION);

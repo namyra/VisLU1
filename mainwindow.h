@@ -4,6 +4,7 @@
 
 #include <QtGui>
 #include "glwidget.h"
+#include "tfview.h"
 
 class MainWindow : public QWidget
 {
@@ -21,6 +22,8 @@ private:
     QRadioButton *twoDButton, *threeDButton, *xButton, *yButton, *zButton;
     QSlider *xSlider, *ySlider, *zSlider;
     GLWidget *glWidget;
+	QGraphicsScene *transferScene;
+	TFView *transferView;
 };
 
 #endif // MAINWINDOW_H
