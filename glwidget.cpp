@@ -16,7 +16,7 @@ GLWidget::GLWidget(int timerInterval, QWidget *parent) : QGLWidget(parent)
 
 	g_fCoordX = g_fCoordY = g_fCoordZ = 0.0f;
 
-	tf = new TFTexture();
+	tf = new TFTexture(this);
 
 	updateGL();
 }
@@ -51,56 +51,21 @@ TFTexture* GLWidget::transferFunction()
 	return tf;
 }
 
-
 void GLWidget::setShaders(void) {
 
 	glGenFramebuffersEXT(1, &fbo);
 	check_gl_error("generate FBO");
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
-	check_gl_error("bind FBO");
 
 	glGenRenderbuffersEXT(1, &depth_rb);
 	check_gl_error("generate renderbuffer");
-	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
-	check_gl_error("bind renderbuffer");
-	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, 256, 256);
-	check_gl_error("buffer storage");
 	
 	glGenTextures(1, &transferTexture);
 	check_gl_error("generate transfer texture");
-	glBindTexture(GL_TEXTURE_2D, transferTexture);
-	check_gl_error("bind transfer texture");
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
-	check_gl_error("teximage2d transfer texture");
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	check_gl_error("tex parameters filter");
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	check_gl_error("tex parameters wrapping");
-
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, transferTexture, 0);
-	check_gl_error("framebuffer");
-	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_rb);
-	check_gl_error("renderbuffer");
-
-	if(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)!=GL_FRAMEBUFFER_COMPLETE_EXT)
-	{
-		qDebug() << "the FBO is not complete";
-		std::cout<<"The FBO is not complete"<<std::endl;
-		std::cout<<"Error: "<<glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)<<std::endl;
-	}
-
+	tf->setFBO(fbo);
+	tf->setDepthRB(depth_rb);
+	tf->setTexture(transferTexture);
 	tf->generate();
-
-	glViewport(0, 0, width(), height());
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-//	check_gl_error("projection change back");
 
 	GLcharARB* fragmentSource;
 	GLcharARB* vertexSource;

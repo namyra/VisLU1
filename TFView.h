@@ -11,6 +11,7 @@ public:
 	TFView(QGraphicsScene *scene, TFTexture *transferFunction);
 	~TFView(void);
 	void mousePressEvent(QMouseEvent *event);
+	void clear();
 	void drawTF();
 
 private:

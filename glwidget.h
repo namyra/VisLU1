@@ -15,7 +15,7 @@ public:
     GLWidget(int timerInterval=0, QWidget *parent=0);
     QSize sizeHint() const;
 	void loadDataSet(std::string fileName);
-	void check_gl_error (std::string from);
+	static void check_gl_error (std::string from);
 	TFTexture* transferFunction();
 
 protected:
