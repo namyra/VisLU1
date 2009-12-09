@@ -55,16 +55,46 @@ void GLWidget::setShaders(void) {
 
 	glGenFramebuffersEXT(1, &fbo);
 	check_gl_error("generate FBO");
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+	GLWidget::check_gl_error("bind FBO");
 
 	glGenRenderbuffersEXT(1, &depth_rb);
 	check_gl_error("generate renderbuffer");
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
+	GLWidget::check_gl_error("bind renderbuffer");
+	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, 256, 256);
+	GLWidget::check_gl_error("buffer storage");
 	
 	glGenTextures(1, &transferTexture);
 	check_gl_error("generate transfer texture");
+	glBindTexture(GL_TEXTURE_2D, transferTexture);
+	GLWidget::check_gl_error("bind transfer texture");
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
+	GLWidget::check_gl_error("teximage2d transfer texture");
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	GLWidget::check_gl_error("tex parameters filter");
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	GLWidget::check_gl_error("tex parameters wrapping");
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	GLWidget::check_gl_error("unbind transfer texture");
+
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, transferTexture, 0);
+	GLWidget::check_gl_error("framebuffer");
+	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_rb);
+	GLWidget::check_gl_error("renderbuffer");
+
+	if(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT)
+	{
+		qDebug() << "The FBO is not complete";
+		qDebug() << "Error: " << glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	}
 
 	tf->setFBO(fbo);
-	tf->setDepthRB(depth_rb);
-	tf->setTexture(transferTexture);
 	tf->generate();
 
 	GLcharARB* fragmentSource;
@@ -253,6 +283,11 @@ void GLWidget::paintGL()
 				glTexCoord3f(g_fCoordX, 0.0f, 1.0f);
 				glVertex3f(-0.5,0.5,-1);
 			glEnd();
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_3D, 0);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 		else // 3d texture not supported
 		{
@@ -372,6 +407,7 @@ void GLWidget::loadDataSet(std::string fileName) {
 					qDebug() << gluErrorString(glError);
 				}
 			}
+			glBindTexture(GL_TEXTURE_3D, 0);
 		}
 		else {
 			std::cout<<"3D textures not supported!"<<std::endl;
@@ -406,37 +442,38 @@ void GLWidget::loadDataSet(std::string fileName) {
 				}
 			}
 		}
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	std::cout << std::endl;
 }
 
 char* GLWidget::readShader(char *fn) 
-	{
-		FILE *fp;
-		char *content = NULL;
+{
+	FILE *fp;
+	char *content = NULL;
 
-		int count=0;
+	int count=0;
 
-		if (fn != NULL) {
+	if (fn != NULL) {
 
-			fp = fopen(fn,"rt");
+		fp = fopen(fn,"rt");
 
-			if (fp != NULL) {
-										      
-        	      		fseek(fp, 0, SEEK_END);
-        			count = ftell(fp);
-        			rewind(fp);
+		if (fp != NULL) {
+									      
+    	      		fseek(fp, 0, SEEK_END);
+    			count = ftell(fp);
+    			rewind(fp);
 
-				if (count > 0) {
-					content = (char *)malloc(sizeof(char) * (count+1));
-					count = fread(content,sizeof(char),count,fp);
-					content[count] = '\0';
-				}
-				fclose(fp);
-										
+			if (count > 0) {
+				content = (char *)malloc(sizeof(char) * (count+1));
+				count = fread(content,sizeof(char),count,fp);
+				content[count] = '\0';
 			}
+			fclose(fp);
+									
 		}
-	
-		return content;
 	}
+
+	return content;
+}
 
