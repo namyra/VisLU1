@@ -1,6 +1,8 @@
 #ifndef GLWIDGET_H
 #define GLWIDGET_H
 
+#include <algorithm>
+
 #include "common.h"
 #include <qgl.h>
 #include "Volume.h"
@@ -13,9 +15,10 @@ class GLWidget : public QGLWidget
 
 public:
     GLWidget(int timerInterval=0, QWidget *parent=0);
+	~GLWidget();
     QSize sizeHint() const;
 	void loadDataSet(std::string fileName);
-	static void check_gl_error (std::string from);
+	void check_gl_error (std::string from);
 	TFTexture* transferFunction();
 
 protected:
@@ -30,25 +33,39 @@ protected slots:
     void setX(int x);
     void setY(int y);
     void setZ(int z);
+	void setView(bool v);
 
 private:
+	bool viewMode;
     QTimer *timer;
 	Volume g_Volume;
 	GLuint dataTexture;
+	GLuint gradientTexture;
 	float g_fCoordX;
 	float g_fCoordY;
 	float g_fCoordZ;
 	GLuint fragmentShader;
 	GLuint vertexShader;
+	GLuint rayShaderV;
+	GLuint rayShaderF;
 	GLuint transferProgram;
 	GLuint transferTexture;
-	GLuint fbo;
+	GLuint rayProgram;
+	GLuint fbo_transfer;
+	GLuint fbo_front;
+	GLuint fbo_back;
+	GLuint tex_front;
+	GLuint tex_back;
+	GLuint render_front;
+	GLuint render_back;
 	GLuint depth_rb;
 	TFTexture *tf;
 
 	const int GetNextPowerOfTwo(const int iNumber);
 	void setShaders(void);
 	char* readShader(char *fn);
+
+	void drawBoundingBox(GLuint& fbo);
 };
 
 #endif // GLWIDGET_H

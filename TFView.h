@@ -1,6 +1,9 @@
 #pragma once
 
+#include <QDebug>
+
 #include <QGraphicsView>
+#include <qcolordialog.h>
 #include "tftexture.h"
 
 class TFView :

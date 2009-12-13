@@ -189,6 +189,10 @@ public:
 	
 	void load(const std::string & strFilename)
 	{
+		for (unsigned int i = 0; i < 256; i++) {
+			histogram[i] = 0;
+		}
+
 		std::cout << "- Loading file '" << strFilename << "' ... " << std::endl;
 		FILE *fp = NULL;
 		
@@ -252,6 +256,13 @@ public:
 						//we convert the data to float values in an interval of [0..1]
 						const float fValue = std::min(1.0f,float(vecData[i + j*m_iWidth + k*iSlice]) / 4095.0f);
 						m_vecVoxels[i+j*m_iWidth+k*iSlice] = Voxel(fValue);
+						unsigned int j = int(floor(fValue * 255));
+						//if (j > 0)
+						//{
+							//histogram[int(floor(fValue * 255))] += 1;
+							//qDebug() << int(floor(fValue * 255));
+							histogram[j] += 1;
+						//}
 					}
 				}
 				//qDebug() << "Preparing Data";
@@ -261,8 +272,22 @@ public:
 			}
 			qDebug() << "Data prepared";
 			std::cout << std::endl << "- Data prepared." << std::endl;
+
+			int histHeight = 0;
+			//unsigned int t = 0;
+			for (int i = 1; i < 256; i++) {
+				if (histogram[i] > histHeight)
+					histHeight = histogram[i];
+					//t = i;
+			}
+			//qDebug() << "t: " << t;
+			//qDebug() << "h: " << histHeight;
 		}
 
+	};
+
+	int* getHistogram(void) {
+		return histogram;
 	};
 
 protected:
@@ -270,4 +295,5 @@ protected:
 private:
 	std::vector<Voxel> m_vecVoxels;
 	int m_iWidth,m_iHeight,m_iDepth;
+	int histogram[256];
 };

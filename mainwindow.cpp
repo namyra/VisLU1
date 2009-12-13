@@ -21,6 +21,8 @@ MainWindow::MainWindow()
     renderButtons->addButton(twoDButton, 0);
     renderButtons->addButton(threeDButton, 1);
 
+	connect(twoDButton, SIGNAL(toggled(bool)), glWidget, SLOT(setView(bool)));
+
 //    connect(renderButtons, SIGNAL(buttonClicked(int)), glWidget, SLOT(setDirection(int)));
 
     renderGroup = new QGroupBox;
@@ -69,50 +71,12 @@ MainWindow::MainWindow()
     mainLayout->addWidget(glWidget);
     setLayout(mainLayout);
 
-	bool foundOne;
-	do
-	{
-		foundOne = false;
-		QList<QWidget *> allChildWidgets = this->findChildren<QWidget *>();
-		allChildWidgets.prepend( this );
-		foreach(QWidget* w, allChildWidgets)
-		{
-			if(w->testAttribute(Qt::WA_PendingResizeEvent))
-			{
-				QResizeEvent e(w->size(), QSize());
-				QApplication::sendEvent(w, &e);
-				w->setAttribute(Qt::WA_PendingResizeEvent, false);
-				// hack: make QTabWidget think it's visible; no layout otherwise
-				w->setAttribute(Qt::WA_WState_Visible, true);
-				foundOne = true;
-			}
-		}
-		// Process LayoutRequest events, in particular
-		qApp->sendPostedEvents();
-
-		if(!foundOne)
-		{
-			// Reset visible flag, to avoid crashes in qt
-			foreach(QWidget* w, allChildWidgets)
-				w->setAttribute(Qt::WA_WState_Visible, false);
-		}
-	} while(foundOne);
-
-	qint32 sceneWidth = transferView->viewport()->width();
-	qint32 sceneHeight = transferView->viewport()->height();
-	
-	//qDebug() << "Viewport: "<< sceneWidth << sceneHeight;
-	//qDebug() << "GraphicsView: " << transferView->width() << transferView->height();
-	//qDebug() << "CentralWidget: " << sideBar->width() << sideBar->height();
-	//qDebug() << "MainWindow: " << this->width() << this->height();
-
-	transferView->scene()->setSceneRect(0, 0, sceneWidth, sceneHeight);
-	transferView->drawTF();
+	transferView->setSceneRect(QRectF(0, 0, transferView->width(), transferView->height()));
 
     setMinimumSize(800, 600);
-    setWindowTitle("GUI Test");
+    setWindowTitle("SimpleVis");
 
-	glWidget->loadDataSet("dat/lobster.dat");
+	glWidget->loadDataSet("dat/stagbeetle277x277x164.dat");
 }
 
 QSlider *MainWindow::createSlider()
