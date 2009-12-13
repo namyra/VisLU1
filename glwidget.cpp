@@ -139,14 +139,14 @@ void GLWidget::setShaders(void) {
 	check_gl_error("generate renderbuffer");
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
 	check_gl_error("bind renderbuffer");
-	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, 256, 256);
+	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, 2048, 2048);
 	check_gl_error("buffer storage");
 	
 	glGenTextures(1, &transferTexture);
 	check_gl_error("generate transfer texture");
 	glBindTexture(GL_TEXTURE_2D, transferTexture);
 	check_gl_error("bind transfer texture");
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, 256, 256, 0, GL_BGRA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, 2048, 2048, 0, GL_BGRA, GL_FLOAT, NULL);
 	check_gl_error("teximage2d transfer texture");
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

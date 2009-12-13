@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QDebug>
-
 #include "TFNode.h"
 #include "qgl.h"
 
@@ -11,8 +10,9 @@ public:
 	TFTexture(QWidget *parent);
 	~TFTexture(void);
 	void addNode(TFNode node);
-	std::vector<TFNode>::iterator begin();
-	std::vector<TFNode>::iterator end();
+	void removeNode(GLuint x);
+	std::map<int, TFNode>::iterator begin();
+	std::map<int, TFNode>::iterator end();
 	void setFBO(GLuint fbo, GLuint texture);
 	void generate(void);
 	void clear(void);
@@ -21,7 +21,7 @@ public:
 
 private:
 	
-	std::vector<TFNode> nodes;
+	std::map<int, TFNode> nodes;
 	QWidget *parent;
 	GLuint fbo;
 	GLuint texture;

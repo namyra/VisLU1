@@ -5,7 +5,7 @@ TFTexture::TFTexture(QWidget *parent)
 {
 	this->parent = parent;
 
-	nodes = std::vector<TFNode>();
+	nodes = std::map<int, TFNode>();
 
 	addNode(TFNode(0, 0.0, 0.0, 0.0, 0.0));
 	addNode(TFNode(96 * 8.0, 0.5, 0.1, 0.0, 0.05));
@@ -21,15 +21,20 @@ TFTexture::~TFTexture(void)
 
 void TFTexture::addNode(TFNode node)
 {
-	nodes.push_back(node);
+	nodes.insert(std::pair<int, TFNode>(node.x, node));
 }
 
-std::vector<TFNode>::iterator TFTexture::begin()
+void TFTexture::removeNode(GLuint x)
+{
+	nodes.erase(x);
+}
+
+std::map<int, TFNode>::iterator TFTexture::begin()
 {
 	return nodes.begin();
 }
 
-std::vector<TFNode>::iterator TFTexture::end()
+std::map<int, TFNode>::iterator TFTexture::end()
 {
 	return nodes.end();
 }
@@ -88,30 +93,31 @@ void TFTexture::generate(void)
 	 
 	glBegin(GL_QUADS);
 	 
-	sort(nodes.begin(), nodes.end());
+	std::map<int, TFNode>::iterator node;
+	TFNode thisNode, prevNode;
 	 
-	std::vector<TFNode>::iterator node;
-	TFNode prevNode;
-	 
-	for(node = nodes.begin(); node < nodes.end(); node++)
+	for(node = nodes.begin(); node != nodes.end(); node++)
 	{
 		if(node == nodes.begin())
 		{
-			prevNode = *node;
+			prevNode = node->second;
 			continue;
 		}
-		 
+
+		thisNode = node->second;
+
 		glColor4f(prevNode.r, prevNode.g, prevNode.b, prevNode.a);
 		glVertex3f(prevNode.x, 0, -1);
-		glColor4f(node->r, node->g, node->b, node->a);
-		glVertex3f(node->x, 0, -1);
-		glColor4f(node->r, node->g, node->b, node->a);
-		glVertex3f(node->x, 2048, -1);
+		glColor4f(thisNode.r, thisNode.g, thisNode.b, thisNode.a);
+		glVertex3f(thisNode.x, 0, -1);
+		glColor4f(thisNode.r, thisNode.g, thisNode.b, thisNode.a);
+		glVertex3f(thisNode.x, 2048, -1);
 		glColor4f(prevNode.r, prevNode.g, prevNode.b, prevNode.a);
 		glVertex3f(prevNode.x, 2048, -1);
 		 
-		prevNode = *node;
+		prevNode = node->second;
 	}
+
 	glEnd();
 	 
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
