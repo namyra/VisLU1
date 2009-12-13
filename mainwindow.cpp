@@ -4,7 +4,10 @@
 
 MainWindow::MainWindow()
 {
-    glWidget = new GLWidget(50, this);
+	QWidget *widget = new QWidget;
+	setCentralWidget(widget);
+
+    glWidget = new GLWidget(50, widget);
 
     xSlider = createSlider();
     ySlider = createSlider();
@@ -23,8 +26,6 @@ MainWindow::MainWindow()
 
 	connect(twoDButton, SIGNAL(toggled(bool)), glWidget, SLOT(setView(bool)));
 
-//    connect(renderButtons, SIGNAL(buttonClicked(int)), glWidget, SLOT(setDirection(int)));
-
     renderGroup = new QGroupBox;
     QHBoxLayout *renderGroupLayout = new QHBoxLayout;
     renderGroupLayout->addWidget(twoDButton);
@@ -39,8 +40,6 @@ MainWindow::MainWindow()
     directionButtons->addButton(xButton, 0);
     directionButtons->addButton(yButton, 1);
     directionButtons->addButton(zButton, 2);
-
-//	connect(directionButtons, SIGNAL(buttonClicked(int)), glWidget, SLOT(setColor(int)));
 
     sliderGroup = new QGroupBox;
     QGridLayout *sliderGroupLayout = new QGridLayout;
@@ -69,15 +68,60 @@ MainWindow::MainWindow()
     QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->addWidget(sideBar);
     mainLayout->addWidget(glWidget);
-    setLayout(mainLayout);
+    widget->setLayout(mainLayout);
+	
+	openAct = new QAction(tr("&Open"), this);
+	openAct->setShortcuts(QKeySequence::Open);
+	openAct->setStatusTip(tr("Load a dataset"));
+	connect(openAct, SIGNAL(triggered()), this, SLOT(loadDataset()));
 
-	transferView->setSceneRect(QRectF(0, 0, transferView->width(), transferView->height()));
+	fileMenu = menuBar()->addMenu(tr("&File"));
+	fileMenu->addAction(openAct);
+
+	bool foundOne;
+	do
+	{
+		foundOne = false;
+		QList<QWidget *> allChildWidgets = this->findChildren<QWidget *>();
+		allChildWidgets.prepend( this );
+
+		foreach(QWidget* w, allChildWidgets)
+		{
+			if(w->testAttribute(Qt::WA_PendingResizeEvent))
+			{
+				QResizeEvent e(w->size(), QSize());
+				QApplication::sendEvent(w, &e);
+				w->setAttribute(Qt::WA_PendingResizeEvent, false);
+				// hack: make QTabWidget think it's visible; no layout otherwise
+				w->setAttribute(Qt::WA_WState_Visible, true);
+				foundOne = true;
+			}
+		}
+		// Process LayoutRequest events, in particular
+		qApp->sendPostedEvents();
+		 
+		if(!foundOne)
+		{
+			// Reset visible flag, to avoid crashes in qt
+			foreach(QWidget* w, allChildWidgets)
+				w->setAttribute(Qt::WA_WState_Visible, false);
+		}
+	} while(foundOne);
+	 
+	qint32 sceneWidth = transferView->viewport()->width();
+	qint32 sceneHeight = transferView->viewport()->height();
+
+	transferView->setSceneRect(QRectF(0, 0, sceneWidth, sceneHeight));
 
     setMinimumSize(800, 600);
     setWindowTitle("SimpleVis");
 
-	glWidget->loadDataSet("dat/stagbeetle277x277x164.dat");
+//	glWidget->loadDataSet("dat/stagbeetle277x277x164.dat");
+
+	transferView->drawTF();
 }
+
+
 
 QSlider *MainWindow::createSlider()
 {
@@ -88,6 +132,14 @@ QSlider *MainWindow::createSlider()
     slider->setTickInterval(16 * 16);
     slider->setTickPosition(QSlider::TicksBelow);
     return slider;
+}
+
+void MainWindow::loadDataset()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Load Dataset"), "", tr("Volume Data (*.dat)"));
+	if(!fileName.isNull())
+		glWidget->loadDataSet(fileName.toStdString());
+	transferView->drawTF();
 }
 
 MainWindow::~MainWindow()

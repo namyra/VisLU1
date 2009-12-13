@@ -6,7 +6,7 @@
 #include "glwidget.h"
 #include "tfview.h"
 
-class MainWindow : public QWidget
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -24,6 +24,11 @@ private:
     GLWidget *glWidget;
 	QGraphicsScene *transferScene;
 	TFView *transferView;
+	QMenu *fileMenu;
+	QAction *openAct;
+
+private slots:
+	void loadDataset();
 };
 
 #endif // MAINWINDOW_H

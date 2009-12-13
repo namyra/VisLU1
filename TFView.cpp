@@ -10,6 +10,7 @@ TFView::TFView(QGraphicsScene *scene, TFTexture *tf) : QGraphicsView(scene)
 void TFView::clear()
 {
 	QList<QGraphicsItem *> allItems = this->items();
+
 	foreach(QGraphicsItem* i, allItems)
 	{
 		scene()->removeItem(i);
@@ -27,17 +28,16 @@ void TFView::drawTF()
 	std::vector<TFNode>::iterator node;
 	TFNode prevNode;
 	
-	double hist_off = 20.0;
 	for (unsigned int i = 1; i < 256; i++) {
 		QPen pen(QColor(i, 0.25, 255 - i, 255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-		scene()->addLine(static_cast<double>(i) - hist_off, 0.83 * sceneHeight, static_cast<double>(i)  - hist_off, (0.83 * sceneHeight ) - (tf->histogram[i] * sceneHeight), pen);
+		scene()->addLine(static_cast<double>(i), sceneHeight, static_cast<double>(i), sceneHeight * (1 - tf->histogram[i]), pen);
 	}
 
 	QPen pen2(Qt::black, 1, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
 
 	for(node = tf->begin(); node < tf->end(); node++)
 	{
-		scene()->addRect(((float)node->x / 256 * sceneWidth - 4.0) , (1 - node->a) * sceneHeight - 4.0, 9, 9, QPen(), QBrush(QColor(node->r * 255, node->g * 255, node->b * 255)));
+		scene()->addRect(((float)node->x / 2048 * sceneWidth - 4.0) , (1 - node->a) * sceneHeight - 4.0, 9, 9, QPen(), QBrush(QColor(node->r * 255, node->g * 255, node->b * 255)));
 		 
 		if(node == tf->begin())
 		{
@@ -45,7 +45,7 @@ void TFView::drawTF()
 			continue;
 		}
 		 
-		scene()->addLine((float)prevNode.x / 256 * sceneWidth  - 0.0, (1 - prevNode.a) * sceneHeight  - 0.0, (float)node->x / 256 * sceneWidth  - 0.0, (1 - node->a) * sceneHeight  - 0.0, pen2);
+		scene()->addLine((float)prevNode.x / 2048 * sceneWidth, (1 - prevNode.a) * sceneHeight, (float)node->x / 2048 * sceneWidth, (1 - node->a) * sceneHeight, pen2);
 		 
 		prevNode = *node;
 	}
@@ -70,7 +70,7 @@ void TFView::mousePressEvent(QMouseEvent *event)
 				float r = color.redF();
 				float g = color.greenF();
 				float b = color.blueF();
-				tf->addNode(TFNode(pos.x() / sceneWidth * 256, r, g, b, 1 - pos.y() / sceneHeight));
+				tf->addNode(TFNode(pos.x() / sceneWidth * 2048, r, g, b, 1 - pos.y() / sceneHeight));
 
 				tf->generate();
 				drawTF();
@@ -80,7 +80,6 @@ void TFView::mousePressEvent(QMouseEvent *event)
 	else if (event->button() == Qt::RightButton)
 	{
 		tf->clear();
-
 		tf->generate();
 		drawTF();
 	}

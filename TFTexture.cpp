@@ -73,7 +73,6 @@ void TFTexture::generate(void)
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_TEXTURE_3D);
 
-
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
 	 
 	glViewport(0, 0, 2048, 2048);
@@ -126,5 +125,4 @@ void TFTexture::generate(void)
 	glPopMatrix();
 
 	glPopMatrix();
-
 }

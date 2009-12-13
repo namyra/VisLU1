@@ -169,7 +169,6 @@ void GLWidget::setShaders(void) {
 	}
 
 	tf->setFBO(fbo_transfer, transferTexture);
-	tf->generate();
 
 	glViewport(0, 0, width(), height());
 	glMatrixMode(GL_PROJECTION);
@@ -253,6 +252,8 @@ void GLWidget::setShaders(void) {
 
 	glUseProgram(transferProgram);
 	check_gl_error("use program");
+
+	tf->generate();
 }
 
 void GLWidget::initializeGL()
