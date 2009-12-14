@@ -18,8 +18,8 @@ private:
     QSlider *createSlider();
 
     QGroupBox *sideBar, *renderGroup, *sliderGroup;
-    QButtonGroup *renderButtons, *directionButtons;
-    QRadioButton *twoDButton, *threeDButton, *xButton, *yButton, *zButton;
+    QButtonGroup *renderButtons;
+    QRadioButton *twoDButton, *threeDButton;
     QSlider *xSlider, *ySlider, *zSlider;
     GLWidget *glWidget;
 	QGraphicsScene *transferScene;

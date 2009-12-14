@@ -32,23 +32,11 @@ MainWindow::MainWindow()
     renderGroupLayout->addWidget(threeDButton);
     renderGroup->setLayout(renderGroupLayout);
 
-    directionButtons = new QButtonGroup;
-    xButton = new QRadioButton("X");
-    xButton->setChecked(true);
-    yButton = new QRadioButton("Y");
-    zButton = new QRadioButton("Z");
-    directionButtons->addButton(xButton, 0);
-    directionButtons->addButton(yButton, 1);
-    directionButtons->addButton(zButton, 2);
-
     sliderGroup = new QGroupBox;
-    QGridLayout *sliderGroupLayout = new QGridLayout;
-    sliderGroupLayout->addWidget(xButton, 0, 0);
-    sliderGroupLayout->addWidget(yButton, 1, 0);
-    sliderGroupLayout->addWidget(zButton, 2, 0);
-    sliderGroupLayout->addWidget(xSlider, 0, 1);
-    sliderGroupLayout->addWidget(ySlider, 1, 1);
-    sliderGroupLayout->addWidget(zSlider, 2, 1);
+    QVBoxLayout *sliderGroupLayout = new QVBoxLayout;
+    sliderGroupLayout->addWidget(xSlider);
+    sliderGroupLayout->addWidget(ySlider);
+    sliderGroupLayout->addWidget(zSlider);
     sliderGroup->setLayout(sliderGroupLayout);
 
 	transferScene = new QGraphicsScene;
