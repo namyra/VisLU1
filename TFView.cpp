@@ -1,3 +1,9 @@
+/*! \file TFView.cpp
+	\brief TFView source file.
+
+	Contains the source code for the TFView class, which is the GUI element that displays the transfer function.
+*/
+
 #include "TFView.h"
 #include <QMouseEvent>
 #include <QGraphicsItem>
@@ -6,6 +12,10 @@
 TFView::TFView(QGraphicsScene *scene, TFTexture *tf) : QGraphicsView(scene)
 {
 	this->tf = tf;
+}
+
+TFView::~TFView(void)
+{
 }
 
 void TFView::clear()
@@ -98,8 +108,4 @@ void TFView::mousePressEvent(QMouseEvent *event)
 			drawTF();
 		}
 	}
-}
-
-TFView::~TFView(void)
-{
 }

@@ -1,3 +1,9 @@
+/*! \file glwidget.cpp
+	\brief GLWidget source file.
+
+	Contains the source code for the GLWidget class, which is the main display widget, showing the slices/volume renders.
+*/
+
 #include "glwidget.h"
 
 #include <qapplication.h>
@@ -438,8 +444,6 @@ void GLWidget::paintGL()
 				glDisable(GL_TEXTURE_2D);
 				glDisable(GL_LIGHTING);
 
-				//static Timer timTimer;
-
 				glEnable(GL_CULL_FACE);
 
 				glCullFace(GL_BACK);
@@ -573,13 +577,6 @@ void GLWidget::paintGL()
 			}
 		}
 	}
-
-	//estimate fps
-	/*const double dTimePerFrame = double(timTimer);
-	const double dFramesPerSecond = dTimePerFrame > 0.0 ? 1.0 / dTimePerFrame : 0.0;
-	timTimer.start();
-	printf("- %06.2f frames/second \r",dFramesPerSecond);*/
-
 }
 
 void GLWidget::setX(int x)

@@ -1,3 +1,9 @@
+/*! \file TFNode.cpp
+	\brief TFNode source file.
+
+	Contains the source file for the TFNode class, which represents a single node of the transfer function.
+*/
+
 #include "TFNode.h"
 
 TFNode::TFNode(void)

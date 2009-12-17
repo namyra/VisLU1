@@ -1,3 +1,10 @@
+/*! \file TFTexture.cpp
+	\brief TFTexture source file.
+
+	Contains the source code for the TFTexture class, which represents the transfer function
+	both as a series of TFNodes and as the texture generated from them.
+*/
+
 #include "TFTexture.h"
 #include <algorithm>
 

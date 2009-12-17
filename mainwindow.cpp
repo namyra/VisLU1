@@ -1,3 +1,9 @@
+/*! \file mainwindow.cpp
+	\brief MainWindow source file.
+
+	Contains the source code for the MainWindow class, which is the GUI for the application window.
+*/
+
 #include <QtGui>
 
 #include "mainwindow.h"
@@ -109,7 +115,10 @@ MainWindow::MainWindow()
 	transferView->drawTF();
 }
 
+MainWindow::~MainWindow()
+{
 
+}
 
 QSlider *MainWindow::createSlider()
 {
@@ -128,9 +137,4 @@ void MainWindow::loadDataset()
 	if(!fileName.isNull())
 		glWidget->loadDataSet(fileName.toStdString());
 	transferView->drawTF();
-}
-
-MainWindow::~MainWindow()
-{
-
 }
