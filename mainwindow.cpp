@@ -15,6 +15,10 @@ MainWindow::MainWindow()
 
     glWidget = new GLWidget(50, widget);
 
+	xLabel = new QLabel("X");
+	yLabel = new QLabel("Y");
+	zLabel = new QLabel("Z");
+
     xSlider = createSlider();
     ySlider = createSlider();
     zSlider = createSlider();
@@ -39,10 +43,13 @@ MainWindow::MainWindow()
     renderGroup->setLayout(renderGroupLayout);
 
     sliderGroup = new QGroupBox;
-    QVBoxLayout *sliderGroupLayout = new QVBoxLayout;
-    sliderGroupLayout->addWidget(xSlider);
-    sliderGroupLayout->addWidget(ySlider);
-    sliderGroupLayout->addWidget(zSlider);
+    QGridLayout *sliderGroupLayout = new QGridLayout;
+    sliderGroupLayout->addWidget(xLabel, 0, 0);
+    sliderGroupLayout->addWidget(yLabel, 1, 0);
+    sliderGroupLayout->addWidget(zLabel, 2, 0);
+	sliderGroupLayout->addWidget(xSlider, 0, 1);
+    sliderGroupLayout->addWidget(ySlider, 1, 1);
+    sliderGroupLayout->addWidget(zSlider, 2, 1);
     sliderGroup->setLayout(sliderGroupLayout);
 
 	transferScene = new QGraphicsScene;

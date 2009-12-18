@@ -58,6 +58,15 @@ private:
 	//! The button that switches to 3d view.
 	QRadioButton *threeDButton;
 
+	//! The label for the x-axis slider.
+	QLabel *xLabel;
+
+	//! The label for the y-axis slider.
+	QLabel *yLabel;
+
+	//! The label for the z-axis slider.
+	QLabel *zLabel;
+
 	//! The slider determining the x coordinate.
     QSlider *xSlider;
 
